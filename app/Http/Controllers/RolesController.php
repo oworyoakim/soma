@@ -13,6 +13,11 @@ use Illuminate\Support\Str;
 class RolesController extends Controller
 {
 
+    public function indexRoles()
+    {
+        return view('admin.roles');
+    }
+
     public function index(Request $request)
     {
         try
@@ -97,7 +102,7 @@ class RolesController extends Controller
             }
 
             $role->name = $name;
-            $role->slug = $slug;
+            //$role->slug = $slug;
             $role->save();
 
             return response()->json("Role updated!");
@@ -126,9 +131,10 @@ class RolesController extends Controller
 
             $permissions = $request->get('permissions') ?? [];
             $role->permissions = [];
-            foreach ($permissions as $permission)
+            foreach ($permissions as $permission => $value)
             {
-                $role->addPermission($permission);
+                // update if already exists, otherwise create it
+                $role->updatePermission($permission, $value, true);
             }
 
             $role->save();
@@ -140,4 +146,5 @@ class RolesController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
+
 }

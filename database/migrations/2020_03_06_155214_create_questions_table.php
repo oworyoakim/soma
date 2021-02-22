@@ -18,7 +18,7 @@ class CreateQuestionsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('module_id');
             $table->unsignedBigInteger('topic_id');
-            $table->text('title');
+            $table->string('title');
             $table->text('description')->nullable();
             $table->unsignedTinyInteger('weight')->nullable();
             $table->enum('type',[Question::TYPE_REVISION,Question::TYPE_EXAM,Question::TYPE_BOTH])->default(Question::TYPE_BOTH);

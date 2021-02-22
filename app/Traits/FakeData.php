@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 trait FakeData
 {
     use WithFaker;
+
     protected function roleData()
     {
         $name = $this->faker->unique()->userName;
@@ -45,6 +46,7 @@ trait FakeData
             'image' => $this->faker->imageUrl(),
         ];
     }
+
     protected function questionData()
     {
         return [
@@ -83,6 +85,25 @@ trait FakeData
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph(5),
             'body' => $this->faker->paragraph(20),
+        ];
+    }
+
+    protected function classroomData()
+    {
+        return [
+            'title' => $this->faker->sentence,
+            'startTime' => Carbon::now()->addDays(2)->toDateTimeString(),
+            'remarks' => $this->faker->paragraph(20),
+            'duration' => $this->faker->randomElement([15, 20,30,35,40,45,50,55,60]),
+            //'type' => $this->faker->randomElement(['meeting','webinar']),
+            'type' => $this->faker->randomElement(['meeting']),
+        ];
+    }
+
+    protected function getRequestHeaders(){
+        return [
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
         ];
     }
 }

@@ -1,53 +1,55 @@
 <template>
-    <v-app id="inspire">
-        <v-content>
-            <v-container fluid fill-height>
-                <v-layout align-center justify-center>
-                    <v-flex xs12 sm8 md4>
-                        <v-card class="elevation-12">
-                            <v-toolbar color="indigo" dark flat>
-                                <v-toolbar-title>Account Login</v-toolbar-title>
-                            </v-toolbar>
-                            <v-card-text>
-                                <v-alert dense outlined text v-if="loginError" type="error">{{loginError}}</v-alert>
-                                <v-form>
-                                    <v-text-field
-                                        label="Username"
-                                        v-model="form.loginName"
-                                        type="text"
-                                        prepend-icon="account_circle"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        :type="showPassword ? 'text' : 'password'"
-                                        label="Password"
-                                        v-model="form.password"
-                                        prepend-icon="lock"
-                                        :append-icon="showPassword ? 'visibility' : 'visibility_off'"
-                                        @click:append="showPassword = !showPassword"
-                                        @keyup.enter="login()"
-                                    ></v-text-field>
-                                </v-form>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary" block @click="login()" :disabled="isSending || !(form.loginName && form.password)">
-                                    <v-progress-circular v-if="isSending" indeterminate/>
-                                    <v-list-item-action-text v-else>Login</v-list-item-action-text>
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-        </v-content>
-        <app-toast/>
-    </v-app>
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">Sign in to start your session</p>
+            <div class="alert alert-warning alert-dismissible" v-if="loginError">
+                <button type="button" @click="loginError = ''" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5><i class="icon fas fa-exclamation-triangle"></i> Alert!</h5>
+                {{loginError}}
+            </div>
+            <div class="alert alert-danger alert-dismissible" v-if="!!errorMessage">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                {{errorMessage}}
+            </div>
+            <form @submit.prevent="login()" method="post">
+                <div class="input-group mb-3">
+                    <input v-model="form.loginName" type="text" class="form-control" placeholder="Username">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input v-model="form.password" type="password" class="form-control" placeholder="Password">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button :disabled="formInvalid" type="submit" class="btn btn-primary btn-block">
+                            <span v-if="isSending" class="fa fa-spinner fa-spin"></span>
+                            <span v-else>Login</span>
+                        </button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+        </div>
+        <!-- /.login-card-body -->
+    </div>
 </template>
 
 <script>
     import Form from "../../utils/Form";
 
     export default {
+        props: {
+            errorMessage: ''
+        },
         data() {
             return {
                 showPassword: false,
@@ -58,6 +60,11 @@
                 }),
                 loginError: '',
             };
+        },
+        computed: {
+            formInvalid() {
+                return this.isSending || !(this.form.loginName && this.form.password);
+            }
         },
         methods: {
             async login() {
@@ -72,10 +79,10 @@
                     });
                     this.isSending = false;
                     //console.log(response);
-                    this.$store.dispatch("SET_SNACKBAR", {text: response});
+                    this.$store.dispatch("SET_SNACKBAR", {message: response});
                     setTimeout(() => {
                         location.reload();
-                    },500);
+                    }, 500);
                 } catch (error) {
                     this.isSending = false;
                     console.log(error);

@@ -13,7 +13,6 @@ use stdClass;
  * @property string description
  * @property int duration
  * @property int weight
- * @property string outline
  * @property int created_by
  */
 class Module extends Model
@@ -36,34 +35,44 @@ class Module extends Model
     }
 
     /**
+     * @param bool $withRelations
+     *
      * @return stdClass
      */
-    public function getDetails()
+    public function getDetails($withRelations = false)
     {
         $module = new stdClass();
         $module->id = $this->id;
         $module->title = $this->title;
         $module->description = $this->description;
-        $module->outline = $this->outline;
         $module->duration = $this->duration;
         $module->weight = $this->weight;
         $module->courseId = $this->course_id;
 
-        $module->topics = $this->topics()
-                               ->get()
-                               ->map(function (Topic $topic) {
-                                   return $topic->getDetails();
-                               });
+        if ($withRelations)
+        {
+            $module->topics = $this->topics()
+                                   ->get()
+                                   ->map(function (Topic $topic) {
+                                       return $topic->getDetails();
+                                   });
 
-        $module->numTopics = $module->topics->count();
+            $module->numTopics = $module->topics->count();
 
-        $module->questions = $this->questions()
-                                 ->get()
-                                 ->map(function (Question $question) {
-                                     return $question->getDetails();
-                                 });
-        $module->numQuestions = $module->questions->count();
-
+            $module->questions = $this->questions()
+                                      ->get()
+                                      ->map(function (Question $question) {
+                                          return $question->getDetails();
+                                      });
+            $module->numQuestions = $module->questions->count();
+        } else
+        {
+            $module->numTopics = $this->topics()->count();
+            $module->numQuestions = $this->questions()->count();
+            $module->topics = [];
+            $module->questions = [];
+        }
+        $module->maxNumQuestions = $module->numQuestions;
         return $module;
     }
 }

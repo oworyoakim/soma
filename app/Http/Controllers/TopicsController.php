@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use App\Models\Topic;
+use App\Traits\ValidatesHttpRequests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,25 +14,20 @@ use stdClass;
 
 class TopicsController extends Controller
 {
+    use ValidatesHttpRequests;
+
     public function index(Request $request)
     {
         try
         {
             $builder = Topic::query();
-            if ($moduleId = $request->get('module_id'))
+            if ($moduleId = $request->get('moduleId'))
             {
                 $builder->where('module_id', $moduleId);
             }
             $topics = $builder->get()
-                              ->transform(function (Topic $item) {
-                                  $topic = new stdClass();
-                                  $topic->id = $item->id;
-                                  $topic->title = $item->title;
-                                  $topic->description = $item->description;
-                                  $topic->body = $item->body;
-                                  $topic->moduleId = $item->module_id;
-                                  $topic->module = null;
-                                  return $topic;
+                              ->map(function (Topic $topic) {
+                                  return $topic->getDetails();
                               });
             return response()->json($topics);
         } catch (Exception $ex)
@@ -41,12 +37,11 @@ class TopicsController extends Controller
         }
     }
 
-
     public function store(Request $request)
     {
         try
         {
-            $request->validate([
+            $this->validateData($request->all(), [
                 'title' => 'required',
                 'moduleId' => 'required',
             ]);
@@ -77,23 +72,49 @@ class TopicsController extends Controller
             {
                 throw new Exception("Topic not found!");
             }
-            $title = $request->get('title');
+            if($title = $request->get('title')){
+                $topic->title = $title;
+            }
+            if($description = $request->get('description')){
+                $topic->description = $description;
+            }
+            if($body = $request->get('body')){
+                $topic->body = $body;
+            }
+            if($moduleId = $request->get('moduleId')){
+                $topic->module_id  = $moduleId;
+            }
 
-            $request->validate([
-                'title' => 'required',
-                'moduleId' => 'required',
-            ]);
-
-            $topic->title = $title;
-            $topic->description = $request->get('description');
-            $topic->body = $request->get('body');
-            $topic->module_id = $request->get('moduleId');
             $topic->save();
 
             return response()->json("Topic Updated!");
         } catch (Exception $ex)
         {
             Log::error("UPDATE_TOPIC: {$ex->getMessage()}");
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function show($id){
+        try
+        {
+            $loggedInUser = Sentinel::getUser();
+            $topic = Topic::query()->find($id);
+            if (!$topic)
+            {
+                throw new Exception("Topic not found!");
+            }
+            $topicData = $topic->getDetails(true);
+            $topicData->classroom = null;
+            $classroom = $topic->classrooms()->whereIn('status', ['scheduled', 'ongoing', 'missed'])->first();
+            if ($classroom)
+            {
+                $topicData->classroom = $classroom->getDetails($loggedInUser);
+            }
+            return response()->json($topicData);
+        } catch (Exception $ex)
+        {
+            Log::error("GET_TOPIC: {$ex->getMessage()}");
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }

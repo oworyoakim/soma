@@ -18,11 +18,9 @@ class CreateCoursesTable extends Migration
             $table->string('title');
             $table->string('code')->unique();
             $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->text('outline')->nullable();
-            $table->text('outcome')->nullable();
-            $table->unsignedTinyInteger('duration');
-            $table->unsignedTinyInteger('weight');
+            $table->longText('description')->nullable();
+            $table->unsignedInteger('duration')->nullable();
+            $table->unsignedTinyInteger('weight')->nullable();
             $table->string('thumbnail')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();

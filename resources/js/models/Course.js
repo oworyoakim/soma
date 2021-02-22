@@ -7,13 +7,14 @@ export default class Course {
         this.description = '';
         this.weight = null;
         this.duration = null;
-        this.outline = '';
-        this.outcome = '';
         this.thumbnail = '';
+        this.levelId = '';
+        this.level = null;
         this.numEnrolled = null;
         this.numModules = null;
         this.canBeEnrolledFor = false;
         this.canTakeExam = false;
         this.modules = [];
+        this.programIds = [];
     }
 }

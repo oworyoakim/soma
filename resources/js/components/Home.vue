@@ -1,7 +1,5 @@
 <template>
-    <v-layout app>
-        <app-widget icon="folder" text="Available Courses" num="10"></app-widget>
-    </v-layout>
+    <h2>Welcome to SOMA!!!</h2>
 </template>
 
 <script>

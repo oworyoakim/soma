@@ -16,7 +16,7 @@ class CreateAnswersTable extends Migration
         Schema::create('answers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('question_id');
-            $table->text('title');
+            $table->text('description');
             $table->boolean('correct')->default(false);
             $table->boolean('active')->default(true);
             $table->unsignedBigInteger('created_by')->nullable();

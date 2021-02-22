@@ -2,8 +2,10 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureAjaxRequest;
 use App\Http\Middleware\EnsureAuthenticated;
+use App\Http\Middleware\EnsureLearner;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -66,6 +68,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'ensure.authenticated' => EnsureAuthenticated::class,
+        'ensure.learner' => EnsureLearner::class,
+        'ensure.admin' => EnsureAdmin::class,
         'ensure.ajax.request' => EnsureAjaxRequest::class,
     ];
 }

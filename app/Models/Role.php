@@ -15,7 +15,14 @@ class Role extends EloquentRole
         $role = new stdClass();
         $role->id = $this->id;
         $role->name = $this->name;
-        $role->permissions = array_keys($this->getPermissions());
+        $role->permissions = $this->getPermissions();
+        foreach (Permission::all() as $permission)
+        {
+            if (!array_key_exists($permission->slug, $role->permissions))
+            {
+                $role->permissions[$permission->slug] = false;
+            }
+        }
 
         return $role;
     }

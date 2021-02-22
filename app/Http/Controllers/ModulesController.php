@@ -18,22 +18,15 @@ class ModulesController extends Controller
         try
         {
             $builder = Module::query();
-            $courseId = $request->get('course_id');
-            if ($courseId)
+            $courseId = $request->get('courseId');
+            if (!$courseId)
             {
-                $builder->where('course_id', $courseId);
+                return response()->json("Course ID required!", Response::HTTP_FORBIDDEN);
             }
+            $builder->where('course_id', $courseId);
 
-            $modules = $builder->get()->map(function (Module $item) {
-                $module = new stdClass();
-                $module->id = $item->id;
-                $module->title = $item->title;
-                $module->description = $item->description;
-                $module->courseId = $item->course_id;
-                $module->course = null;
-                $module->duration = $item->duration;
-                $module->outline = $item->outline;
-                return $module;
+            $modules = $builder->get()->map(function (Module $module) {
+                return $module->getDetails();
             });
             return response()->json($modules);
         } catch (Exception $ex)
@@ -42,7 +35,6 @@ class ModulesController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
-
 
     public function store(Request $request)
     {
@@ -66,7 +58,7 @@ class ModulesController extends Controller
                 'description' => $request->get('description'),
                 'course_id' => $request->get('courseId'),
                 'duration' => $request->get('duration'),
-                'outline' => $request->get('outline'),
+                'weight' => $request->get('weight'),
                 'created_by' => $user->getUserId(),
             ]);
             return response()->json("Module Created!");
@@ -89,24 +81,25 @@ class ModulesController extends Controller
             }
             $title = $request->get('title');
 
-            $request->validate([
-                'title' => 'required',
-                'courseId' => 'required',
-            ]);
-
-            $courseId = (int)$request->get('courseId');
-            $course = Course::query()->find($courseId);
-
-            if ($courseId != $module->course_id && !$course)
+            if (!empty($title))
             {
-                throw new Exception("Course not found!");
+                $module->title = $title;
             }
 
-            $module->title = $title;
-            $module->description = $request->get('description');
-            $module->course_id = $request->get('courseId');
-            $module->duration = $request->get('duration');
-            $module->outline = $request->get('outline');
+            if($duration = $request->get('duration'))
+            {
+                $module->duration = $duration;
+            }
+            if($weight = $request->get('weight')){
+                $module->weight = $weight;
+            }
+
+            if($description = $request->get('description')){
+                $module->description = $description;
+            }elseif($request->has('description')){
+                $module->description = null;
+            }
+
             $module->save();
 
             return response()->json("Module Updated!");
@@ -116,4 +109,24 @@ class ModulesController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
+
+    public function show($id)
+    {
+        try
+        {
+            $module = Module::query()->find($id);
+            if (!$module)
+            {
+                return response()->json("Module not found!", Response::HTTP_NOT_FOUND);
+            }
+            $moduleData = $module->getDetails(true);
+            return response()->json($moduleData);
+        } catch (Exception $ex)
+        {
+            dd($ex);
+            Log::error("GET_MODULE_DETAILS: {$ex->getMessage()}");
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
 }

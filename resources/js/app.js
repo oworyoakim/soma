@@ -1,65 +1,167 @@
-import Vue from "vue";
-
 require("./bootstrap");
 
+import Vue from "vue";
 
-import Container from "./components/Container";
 import Login from "./components/Auth/Login";
-import Navbar from "./components/Navbar";
-import ModuleNavbar from "./components/ModuleNavbar";
-import Widget from "./components/Widget";
-import Toast from "./components/Toast";
-import VideoPlayer from "./components/VideoPlayer";
-import TextEditor from "./components/TextEditor";
-//import TextEditor from "./components/RichTextEditor";
-import MainModal from "./components/MainModal";
-import ExamContainer from "./components/Exam/Index";
-import ExamInstructions from "./components/Exam/ExamInstructions";
-import ExamResults from "./components/Exam/ExamResults";
-import ExamSession from "./components/Exam/ExamSession";
-import QuestionForm from "./components/Courses/Admin/QuestionForm";
-import AnswerForm from "./components/Courses/Admin/AnswerForm";
-import Topics from "./components/Courses/Admin/Topics";
-import TopicForm from "./components/Courses/Admin/TopicForm";
-import Questions from "./components/Courses/Admin/Questions";
-import CourseForm from "./components/Courses/Admin/CourseForm";
+import StudentDashboard from "./components/Student/Dashboard";
+import StudentProfile from "./components/Student/Profile";
+import StudentCourses from "./components/Student/Courses";
+import AdminDashboard from "./components/Admin/Dashboard";
+import Spinner from "./components/Shared/Spinner";
+import MainSidebar from "./components/MainSidebar";
+import MainFooter from "./components/MainFooter";
+import MainNavbar from "./components/MainNavbar";
+import StudentNavbar from "./components/StudentNavbar";
+import ManageCourses from "./components/Admin/Courses/Index";
+import ManageLiveClasses from "./components/Admin/LiveClasses/Index";
+import ManageUsers from "./components/Admin/Users/Index";
+import ManageRoles from "./components/Admin/Roles/Index";
+import ManageStudents from "./components/Admin/Students/Index";
+import ManageInstructors from "./components/Admin/Instructors/Index";
+import ManagePrograms from "./components/Admin/Programs/Index";
+import ManageLevels from "./components/Admin/Levels/Index";
+import ManageExams from "./components/Admin/Exams/Index";
+import ManageLogbooks from "./components/Admin/Logbooks/Index";
+import ManageEnrollments from "./components/Admin/Enrollments/Index";
+import ManageIntakes from "./components/Admin/Intakes/Index";
 
-Vue.component("app-container", Container);
 Vue.component("app-login", Login);
-Vue.component("app-nav-bar", Navbar);
-Vue.component("app-nav-bar-module", ModuleNavbar);
-Vue.component("app-widget", Widget);
-Vue.component("app-toast", Toast);
-Vue.component("app-video-player", VideoPlayer);
-Vue.component("app-rich-text-editor", TextEditor);
-Vue.component("app-main-modal", MainModal);
-Vue.component("app-exam", ExamContainer);
-Vue.component("app-exam-instructions", ExamInstructions);
-Vue.component("app-exam-session", ExamSession);
-Vue.component("app-exam-results", ExamResults);
-Vue.component("app-course-form", CourseForm);
-Vue.component("app-admin-topics", Topics);
-Vue.component("app-topic-form", TopicForm);
-Vue.component("app-admin-questions", Questions);
-Vue.component("app-question-form", QuestionForm);
-Vue.component("app-answer-form", AnswerForm);
+Vue.component("app-spinner", Spinner);
+Vue.component("app-main-navbar", MainNavbar);
+Vue.component("app-student-navbar", StudentNavbar);
+Vue.component("app-main-sidebar", MainSidebar);
+Vue.component("app-main-footer", MainFooter);
+Vue.component("app-admin-dashboard", AdminDashboard);
+Vue.component("app-manage-courses", ManageCourses);
+Vue.component("app-manage-live-classes", ManageLiveClasses);
+Vue.component("app-manage-users", ManageUsers);
+Vue.component("app-manage-roles", ManageRoles);
+Vue.component("app-manage-students", ManageStudents);
+Vue.component("app-manage-instructors", ManageInstructors);
+Vue.component("app-manage-programs", ManagePrograms);
+Vue.component("app-manage-levels", ManageLevels);
+Vue.component("app-manage-intakes", ManageIntakes);
+Vue.component("app-manage-exams", ManageExams);
+Vue.component("app-manage-logbooks", ManageLogbooks);
+Vue.component("app-manage-enrollments", ManageEnrollments);
 
-let url = document.head.querySelector('meta[name="base-url"]');
+// Student
+Vue.component('app-student-dashboard', StudentDashboard);
+Vue.component('app-student-profile', StudentProfile);
+Vue.component('app-student-courses', StudentCourses);
+
 // Create an Event Bus for communications
-export const EventBus = new Vue();
+const EventBus = new Vue();
+window.EventBus = EventBus;
 // base URL
-export const baseUrl = url.content;
-// TinyMCE API KEY
-export const TinymceApiKey = "e33lp3dvbdq0nltqj3rk60z4a6teb7gnb0zvzqm8xw5kg679";
-// Response Interceptor
+Vue.mixin({
+    computed: {
+        baseUrl(){
+            return baseUrl;
+        }
+    },
+    methods: {
+        deepClone(object) {
+            return JSON.parse(JSON.stringify(object));
+        },
+    },
+});
 
-import router from "./router";
+let baseUrl = null;
+let csrfToken = null;
+let baseUrlElement = document.head.querySelector('meta[name="base-url"]');
+let csrfTokenElement = document.head.querySelector('meta[name="csrf-token"]');
+
+if (baseUrlElement) {
+    baseUrl = baseUrlElement.content || null;
+}
+if (csrfTokenElement) {
+    csrfToken = csrfTokenElement.content || null;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+// Configure Axios for HTTP Requests
+const axios = require('axios');
+const httpClient = axios.create({
+    baseURL: baseUrl, // Register the Application base URL
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken, // Register the CSRF Token
+    },
+    timeout: 10000,
+});
+// To cancel duplicate requests occurring less than 30 seconds apart,
+// We need to keep track of the current requests that are being executed
+/*
+let currentExecutingRequests = {};
+httpClient.interceptors.request.use((request) => {
+    let url = request.url || null;
+    let now = moment();
+    let method = request.method;
+    let key = `${method}:${url}`
+    if(!currentExecutingRequests[key]){
+        currentExecutingRequests[key] = now;
+        return request;
+    }
+    let lastRequestTime = moment(currentExecutingRequests[key]).add(10,'second');
+    if(lastRequestTime.isSameOrBefore(now)){
+        currentExecutingRequests[key] = now;
+        return request;
+    }
+    // console.log("INTERCEPTED DUPLICATE REQUEST: ",key);
+    // throw new axios.Cancel("Request cancelled because the same request was made less than 30 seconds ago!");
+    return {
+        ...request,
+        cancelToken: new axios.CancelToken((cancel) => {
+            console.log('INTERCEPTED DUPLICATE REQUEST: ', key);
+            cancel('Cancelled repeated request!');
+        })
+    };
+}, (error) => {
+    return Promise.reject(error);
+})
+*/
+Vue.prototype.$httpClient = httpClient;
+
+export {
+    baseUrl,
+    httpClient,
+    EventBus,
+};
+
 import store from "./store";
-import vuetify from "./plugins/vuetify";
+import {resolveError} from "./utils/helpers";
+
 
 const app = new Vue({
-    el: "#app",
-    router,
+    el: "#main-app",
     store,
-    vuetify
 });
+
+// Initialize the app
+initApp(app);
+
+/**
+ * Load levels and user data immediately  after initializing the vue app
+ * @param app {Vue}
+ * @returns {Promise<String>}
+ */
+async function initApp(app) {
+    try {
+        let response;
+        app.$store.commit("SET_PRELOADER", true);
+        response = await app.$store.dispatch("GET_LOGGED_IN_USER");
+        console.log(response);
+        response = await app.$store.dispatch("GET_LEVELS");
+        console.log(response);
+        app.$store.commit("SET_PRELOADER", false);
+        return Promise.resolve("Application Initialized!");
+    } catch (error) {
+        app.$store.commit("SET_PRELOADER", false);
+        let message = resolveError(error);
+        return Promise.reject(message);
+    }
+}

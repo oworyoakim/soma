@@ -3,25 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Program;
+use App\Models\ProgramCourse;
+use App\Traits\ValidatesHttpRequests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use stdClass;
 
 class CoursesController extends Controller
 {
+    use ValidatesHttpRequests;
+
+    public function indexCourses()
+    {
+        return view('admin.courses');
+    }
+
     public function index(Request $request)
     {
         try
         {
-            $courses = Course::query()
-                             ->get()
-                             ->map(function (Course $course) {
-                                 return $course->getDetails();
-                             });
+            $programId = $request->get('programId');
+            $builder = Course::query();
+            if (!empty($programId))
+            {
+                $courseIds = ProgramCourse::query()->where('program_id', $programId)->pluck('course_id')->all();
+                $builder->whereIn('id', $courseIds);
+            }
+            $courses = $builder->get()
+                               ->map(function (Course $course) {
+                                   return $course->getDetails();
+                               });
             return response()->json($courses);
         } catch (Exception $ex)
         {
@@ -34,26 +51,35 @@ class CoursesController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'title' => 'required|unique:courses',
                 'code' => 'required|unique:courses',
+                'levelId' => 'required',
                 'duration' => 'required',
                 'weight' => 'required',
-            ]);
+            ];
+
+            $this->validateData($request->all(), $rules);
 
             $user = Sentinel::getUser();
-
-            Course::query()->create([
+            DB::beginTransaction();
+            $course = Course::query()->create([
                 'title' => $request->get('title'),
                 'slug' => Str::slug($request->get('title')),
                 'code' => $request->get('code'),
                 'duration' => $request->get('duration'),
+                'level_id' => $request->get('levelId'),
                 'weight' => $request->get('weight'),
+                'description' => $request->get('description'),
                 'created_by' => $user->getUserId(),
             ]);
+            $programIds = $request->get('programIds');
+            $course->programs()->sync($programIds);
+            DB::commit();
             return response()->json("Course Created!");
         } catch (Exception $ex)
         {
+            DB::rollBack();
             Log::error("CREATE_COURSE: {$ex->getMessage()}");
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
@@ -73,12 +99,6 @@ class CoursesController extends Controller
             $title = $request->get('title');
             $slug = Str::slug($title);
 
-            $rules = [
-                'duration' => 'required',
-                'weight' => 'required',
-            ];
-
-
             if ($slug != $course->slug)
             {
                 $someCourse = Course::query()->where('slug', $slug)->first();
@@ -87,27 +107,104 @@ class CoursesController extends Controller
                 {
                     throw new Exception("A course titled {$title} already exists!");
                 }
-                $rules['title'] = 'required|unique:courses';
             }
 
-            if ($code != $course->code)
+            if (!empty($code) && $code != $course->code)
             {
-                $rules['code'] = 'required|unique:courses';
+                $someCourse = Course::query()->where('code', $code)->first();
+
+                if ($someCourse && $someCourse->id != $course->id)
+                {
+                    throw new Exception("A course with code {$code} already exists!");
+                }
             }
 
-            $request->validate($rules);
+            if (!empty($title))
+            {
+                $course->title = $title;
+                $course->slug = $slug;
+            }
 
-            $course->title = $title;
-            $course->slug = $slug;
-            $course->code = $code;
-            $course->duration = $request->get('duration');
-            $course->weight = $request->get('weight');
+            if (!empty($code))
+            {
+                $course->code = $code;
+            }
+            if ($levelId = $request->get('levelId'))
+            {
+                $course->level_id = $levelId;
+            }
+            if ($duration = $request->get('duration'))
+            {
+                $course->duration = $duration;
+            }
+            if ($weight = $request->get('weight'))
+            {
+                $course->weight = $weight;
+            }
+
+            if ($description = $request->get('description'))
+            {
+                $course->description = $description;
+            } elseif ($request->has('description'))
+            {
+                $course->description = null;
+            }
+            DB::beginTransaction();
             $course->save();
-
+            $programIds = $request->get('programIds');
+            $course->programs()->sync($programIds);
+            DB::commit();
             return response()->json("Course Updated!");
         } catch (Exception $ex)
         {
+            DB::rollBack();
             Log::error("UPDATE_COURSE: {$ex->getMessage()}");
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function updateCourseDescription(Request $request)
+    {
+        try
+        {
+            $id = $request->get('id');
+            $course = Course::query()->find($id);
+            if (!$course)
+            {
+                throw new Exception("Course not found!");
+            }
+            if ($request->has('description'))
+            {
+                $course->description = $request->get('description');
+            }
+            DB::beginTransaction();
+            $course->save();
+            DB::commit();
+            return response()->json("Course description updated!");
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
+            Log::error("UPDATE_COURSE_DESCRIPTION: {$ex->getMessage()}");
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function show($id)
+    {
+        try
+        {
+            $course = Course::query()->find($id);
+            if (!$course)
+            {
+                throw new Exception('Course not found!');
+            }
+
+            $courseData = $course->getDetails();
+
+            return response()->json($courseData);
+        } catch (Exception $ex)
+        {
+            Log::error("GET_COURSE: {$ex->getMessage()}");
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }

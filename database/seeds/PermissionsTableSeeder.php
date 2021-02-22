@@ -13,59 +13,181 @@ class PermissionsTableSeeder extends Seeder
     public function run()
     {
         Permission::query()->truncate();
+
         Permission::query()->create([
             'name' => 'Manage Settings',
             'slug' => 'settings',
             'description' => 'Manage Settings',
         ]);
+
         Permission::query()->create([
             'name' => 'Dashboard',
             'slug' => 'dashboard',
             'description' => 'Dashboard',
         ]);
 
-        // user management permissions
+        // programs management permissions
         if ($perm = Permission::query()->create([
-            'name' => 'Manage Users',
-            'slug' => 'users',
-            'description' => 'Manage Users',
+            'name' => 'Manage Programs',
+            'slug' => 'programs',
+            'description' => 'Manage Programs',
         ]))
         {
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'Create Users',
-                'slug' => 'users.create',
-                'description' => 'Create Users',
+                'name' => 'Create programs',
+                'slug' => 'programs.create',
+                'description' => 'Create programs',
             ]);
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'Update Users',
-                'slug' => 'users.update',
-                'description' => 'Update Users',
+                'name' => 'Update programs',
+                'slug' => 'programs.update',
+                'description' => 'Update programs',
             ]);
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'View Users',
-                'slug' => 'users.view',
-                'description' => 'View Users',
+                'name' => 'View programs',
+                'slug' => 'programs.view',
+                'description' => 'View programs',
             ]);
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'Delete Users',
-                'slug' => 'users.delete',
-                'description' => 'Delete Users',
+                'name' => 'Delete programs',
+                'slug' => 'programs.delete',
+                'description' => 'Delete programs',
+            ]);
+        }
+
+        // instructors management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Instructors',
+            'slug' => 'instructors',
+            'description' => 'Manage Instructors',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create instructors',
+                'slug' => 'instructors.create',
+                'description' => 'Create instructors',
             ]);
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'Manage Roles',
-                'slug' => 'users.roles',
-                'description' => 'Manage Roles',
+                'name' => 'Update instructors',
+                'slug' => 'instructors.update',
+                'description' => 'Update instructors',
             ]);
             Permission::query()->create([
                 'parent_id' => $perm->id,
-                'name' => 'Manage Role Permissions',
-                'slug' => 'users.roles.permissions',
-                'description' => 'Manage Role Permissions',
+                'name' => 'View instructors',
+                'slug' => 'instructors.view',
+                'description' => 'View instructors',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete instructors',
+                'slug' => 'instructors.delete',
+                'description' => 'Delete instructors',
+            ]);
+        }
+
+        // students management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Students',
+            'slug' => 'students',
+            'description' => 'Manage Students',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create students',
+                'slug' => 'students.create',
+                'description' => 'Create students',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update students',
+                'slug' => 'students.update',
+                'description' => 'Update students',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View students',
+                'slug' => 'students.view',
+                'description' => 'View students',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete students',
+                'slug' => 'students.delete',
+                'description' => 'Delete students',
+            ]);
+        }
+
+        // levels management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Levels',
+            'slug' => 'levels',
+            'description' => 'Manage Levels',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create levels',
+                'slug' => 'levels.create',
+                'description' => 'Create levels',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update levels',
+                'slug' => 'levels.update',
+                'description' => 'Update levels',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View levels',
+                'slug' => 'levels.view',
+                'description' => 'View levels',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete levels',
+                'slug' => 'levels.delete',
+                'description' => 'Delete levels',
+            ]);
+        }
+
+        // intakes management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Intakes',
+            'slug' => 'intakes',
+            'description' => 'Manage Intakes',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create intakes',
+                'slug' => 'intakes.create',
+                'description' => 'Create intakes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update intakes',
+                'slug' => 'intakes.update',
+                'description' => 'Update intakes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View intakes',
+                'slug' => 'intakes.view',
+                'description' => 'View intakes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete intakes',
+                'slug' => 'intakes.delete',
+                'description' => 'Delete intakes',
             ]);
         }
 
@@ -135,6 +257,72 @@ class PermissionsTableSeeder extends Seeder
             ]);
         }
 
+        // module topics management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Module Topics',
+            'slug' => 'topics',
+            'description' => 'Manage Module Topics',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create module topics',
+                'slug' => 'topics.create',
+                'description' => 'Create module topics',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update module topics',
+                'slug' => 'topics.update',
+                'description' => 'Update module topics',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View module topics',
+                'slug' => 'topics.view',
+                'description' => 'View module topics',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete module topics',
+                'slug' => 'topics.delete',
+                'description' => 'Delete module topics',
+            ]);
+        }
+
+        // course live-classes management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Live Classes',
+            'slug' => 'live-classes',
+            'description' => 'Manage Live Classes',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create live classes',
+                'slug' => 'live-classes.create',
+                'description' => 'Create live classes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update live classes',
+                'slug' => 'live-classes.update',
+                'description' => 'Update live classes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View live classes',
+                'slug' => 'live-classes.view',
+                'description' => 'View live classes',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete live classes',
+                'slug' => 'live-classes.delete',
+                'description' => 'Delete live classes',
+            ]);
+        }
+
         // exams management permissions
         if ($perm = Permission::query()->create([
             'name' => 'Manage exams',
@@ -171,6 +359,129 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'Take exams',
                 'slug' => 'exams.take',
                 'description' => 'Take exams',
+            ]);
+        }
+
+        // enrollments management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Enrollments',
+            'slug' => 'enrollments',
+            'description' => 'Manage Enrollments',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create enrollments',
+                'slug' => 'enrollments.create',
+                'description' => 'Create enrollments',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update enrollments',
+                'slug' => 'enrollments.update',
+                'description' => 'Update enrollments',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View enrollments',
+                'slug' => 'enrollments.view',
+                'description' => 'View enrollments',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete enrollments',
+                'slug' => 'enrollments.delete',
+                'description' => 'Delete enrollments',
+            ]);
+        }
+
+        // logbooks management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Logbooks',
+            'slug' => 'logbooks',
+            'description' => 'Manage Logbooks',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create logbooks',
+                'slug' => 'logbooks.create',
+                'description' => 'Create logbooks',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update logbooks',
+                'slug' => 'logbooks.update',
+                'description' => 'Update logbooks',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View logbooks',
+                'slug' => 'logbooks.view',
+                'description' => 'View logbooks',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete logbooks',
+                'slug' => 'logbooks.delete',
+                'description' => 'Delete logbooks',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Approve logbooks',
+                'slug' => 'logbooks.approve',
+                'description' => 'Approve logbooks',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Decline logbooks',
+                'slug' => 'logbooks.decline',
+                'description' => 'Decline logbooks',
+            ]);
+        }
+
+        // user management permissions
+        if ($perm = Permission::query()->create([
+            'name' => 'Manage Users',
+            'slug' => 'users',
+            'description' => 'Manage Users',
+        ]))
+        {
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Create Users',
+                'slug' => 'users.create',
+                'description' => 'Create Users',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Update Users',
+                'slug' => 'users.update',
+                'description' => 'Update Users',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'View Users',
+                'slug' => 'users.view',
+                'description' => 'View Users',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Delete Users',
+                'slug' => 'users.delete',
+                'description' => 'Delete Users',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Manage Roles',
+                'slug' => 'users.roles',
+                'description' => 'Manage Roles',
+            ]);
+            Permission::query()->create([
+                'parent_id' => $perm->id,
+                'name' => 'Manage Role Permissions',
+                'slug' => 'users.roles.permissions',
+                'description' => 'Manage Role Permissions',
             ]);
         }
     }

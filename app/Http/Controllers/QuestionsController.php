@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
 use App\Models\Question;
+use App\Traits\ValidatesHttpRequests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,16 +14,18 @@ use stdClass;
 
 class QuestionsController extends Controller
 {
+    use ValidatesHttpRequests;
+
     public function index(Request $request)
     {
         try
         {
             $builder = Question::query();
-            if ($moduleId = $request->get('module_id'))
+            if ($moduleId = $request->get('moduleId'))
             {
                 $builder->where('module_id', $moduleId);
             }
-            if ($topicId = $request->get('topic_id'))
+            if ($topicId = $request->get('topicId'))
             {
                 $builder->where('topic_id', $topicId);
             }
@@ -37,27 +41,42 @@ class QuestionsController extends Controller
         }
     }
 
-
     public function store(Request $request)
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'title' => 'required',
+                'description' => 'required',
                 'moduleId' => 'required',
                 'topicId' => 'required',
-            ]);
+            ];
+
+            $this->validateData($request->all(),$rules);
+
             $user = Sentinel::getUser();
 
-            Question::query()->create([
+            $question = Question::query()->create([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
                 'module_id' => $request->get('moduleId'),
                 'topic_id' => $request->get('topicId'),
                 'type' => $request->get('type'),
                 'weight' => $request->get('weight'),
+                'shuffle_answers' => $request->get('shuffleAnswers'),
                 'created_by' => $user->getUserId(),
             ]);
+
+            $answers = $request->get('answers');
+            foreach ($answers as $answer){
+                Answer::query()->create([
+                    'question_id' => $question->id,
+                    'description' => $answer['description'],
+                    'correct' => $answer['correct'],
+                    'created_by' => $user->getUserId(),
+                ]);
+            }
+
             return response()->json("Question Created!");
         } catch (Exception $ex)
         {
@@ -76,18 +95,21 @@ class QuestionsController extends Controller
             {
                 throw new Exception("Question not found!");
             }
-            $title = $request->get('title');
+            if($title = $request->get('title')){
+                $question->title = $title;
+            }
 
-            $request->validate([
-                'title' => 'required',
-            ]);
-
-            $question->title = $title;
-            $question->description = $request->get('description');
-            $question->type = $request->get('type');
-            $question->weight = $request->get('weight');
+            if($description = $request->get('description')){
+                $question->description = $description;
+            }
+            if($type = $request->get('type')){
+                $question->type = $type;
+            }
+            if($weight = $request->get('weight')){
+                $question->weight = $weight;
+            }
+            $question->shuffle_answers = $request->get('shuffleAnswers');
             $question->save();
-
             return response()->json("Question Updated!");
         } catch (Exception $ex)
         {

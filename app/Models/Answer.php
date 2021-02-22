@@ -10,7 +10,7 @@ use stdClass;
  * @package App\Models
  * @property int id
  * @property int question_id
- * @property string title
+ * @property string description
  * @property bool correct
  * @property bool active
  * @property int created_by
@@ -51,9 +51,17 @@ class Answer extends Model
     {
         $answer = new stdClass();
         $answer->id = $this->id;
-        $answer->title = $this->title;
+        $answer->description = $this->description;
         $answer->correct = !!$this->correct;
         $answer->active = !!$this->active;
+        return $answer;
+    }
+
+    public function getDetailsForExamSession(){
+        $answer = new stdClass();
+        $answer->id = $this->id;
+        $answer->description = $this->description;
+        $answer->selected = false;
         return $answer;
     }
 }

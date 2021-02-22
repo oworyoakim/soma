@@ -5,13 +5,16 @@
         <meta name="csrf-token" content="{{csrf_token()}}">
         <meta name="base-url" content="{{url('/')}}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>E-Exam</title>
-        <link href="/css/app.css" rel="stylesheet">
+        <title>SOMA - Authorization</title>
+        <link rel="stylesheet" href="{{mix('css/app.css')}}">
     </head>
-    <body>
-    <div id="app">
-        <app-login></app-login>
-    </div>
-    <script src="/js/app.js"></script>
+    <body class="hold-transition login-page">
+        <div class="login-box mt-0" id="main-app">
+            <div class="login-logo">
+                <a href="/"><b>SOMA</b></a>
+            </div>
+            <app-login error-message="{{session()->get('error')}}"></app-login>
+        </div>
+        <script src="{{mix('js/app.js')}}"></script>
     </body>
 </html>

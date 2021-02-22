@@ -28,10 +28,17 @@ class Topic extends Model
         return $this->hasMany(Question::class, 'topic_id');
     }
 
+    public function classrooms()
+    {
+        return $this->hasMany(Classroom::class, 'topic_id');
+    }
+
     /**
+     * @param bool $withRelations
+     *
      * @return stdClass
      */
-    public function getDetails()
+    public function getDetails($withRelations = false)
     {
         $topic = new stdClass();
         $topic->id = $this->id;
@@ -39,14 +46,22 @@ class Topic extends Model
         $topic->description = $this->description;
         $topic->body = $this->body;
         $topic->moduleId = $this->module_id;
-        $topic->module = $this->module ?  $this->module->getDetails() : null;
+        if ($withRelations)
+        {
+            $topic->questions = $this->questions()
+                                     ->get()
+                                     ->map(function (Question $question) {
+                                         return $question->getDetails();
+                                     });
+            $topic->numQuestions = $topic->questions->count();
+        } else
+        {
+            $topic->questions = [];
+            $topic->numQuestions = $this->questions()->count();
+        }
 
-        $topic->questions = $this->questions()
-                                  ->get()
-                                  ->map(function (Question $question) {
-                                      return $question->getDetails();
-                                  });
-        $topic->numQuestions = $topic->questions->count();
+
+        $topic->classroom = null;
 
         return $topic;
     }

@@ -15,17 +15,16 @@ class EnsureAuthenticated
      * @param Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         if($user = Sentinel::check()){
             return $next($request);
         }
-        // Store this uri to return to after login
-        $request->session()->put('url.intended',$request->url());
-
-        if($request->isXmlHttpRequest()){
+        if($request->ajax()){
             return response()->json('Session Expired!',Response::HTTP_UNAUTHORIZED);
         }
+        // Store this uri to return to after login
+        $request->session()->put('url.intended',$request->url());
         return redirect()->route('login');
     }
 }

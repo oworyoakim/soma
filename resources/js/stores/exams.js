@@ -1,17 +1,19 @@
-import axios from 'axios';
+import {httpClient} from "../app";
+import {prepareQueryParams, resolveError} from "../utils/helpers";
 
 export default {
     state: {
         exams: [],
         intakes: [],
         examInfo: null,
+        examQuestions: [],
         examStatus: "pending", // pending, ongoing, ended
     },
     getters: {
-        EXAMS: (state) => {
+        EXAMS(state) {
             return state.exams;
         },
-        EXAM_INFO: (state) => {
+        EXAM_INFO(state) {
             let defaultInfo = {
                 intakeId: 1,
                 intakeTitle: "Intake 1",
@@ -106,42 +108,77 @@ export default {
             };
             return state.examInfo || defaultInfo;
         },
-        EXAM_STATUS: (state) => {
+        EXAM_STATUS(state) {
             return state.examStatus || "pending";
+        },
+        EXAM_QUESTIONS(state) {
+            return state.examQuestions || [];
         }
     },
     mutations: {
-        SET_EXAM_INFO: (state, payload) => {
+        SET_EXAM_INFO(state, payload) {
             state.examInfo = payload;
         },
-        SET_EXAM_STATUS: (state, payload) => {
+        SET_EXAM_STATUS(state, payload) {
             state.examStatus = payload;
         },
-        SET_EXAMS: (state, payload) => {
+        SET_EXAMS(state, payload) {
             state.exams = payload;
+        },
+        SET_EXAM_QUESTIONS(state, payload) {
+            state.examQuestions = payload;
         }
     },
     actions: {
-        GET_EXAMS: async ({commit}, payload) => {
+        async GET_EXAMS({commit}, payload = {})  {
             try {
-                let response = await axios.get('/exams?slug=' + payload);
+                let params = prepareQueryParams(payload);
+                let response = await httpClient.get('/v1/exams' + params);
                 commit('SET_EXAMS', response.data);
-                return Promise.resolve('Ok');
+                return Promise.resolve(response.data);
             } catch (error) {
-                return Promise.reject(error.response.data);
+                let message = resolveError(error);
+                return Promise.reject(message);
             }
         },
-        GET_EXAM_INFO: async ({commit}, payload) => {
+        async SAVE_EXAM({commit}, payload) {
             try {
-                let response = await axios.get('/exam/info?slug=' + payload);
-                commit('SET_EXAM_INFO', response.data);
-                return Promise.resolve('Ok');
+                let response;
+                if (!!payload.id) {
+                    response = await httpClient.put('/v1/exams', payload);
+                } else {
+                    response = await httpClient.post('/v1/exams', payload);
+                }
+                return Promise.resolve(response.data);
             } catch (error) {
-                return Promise.reject(error.response.data);
+                let message = resolveError(error);
+                return Promise.reject(message);
             }
         },
-        SET_EXAM_STATUS: ({commit}, payload) => {
-            commit('SET_EXAM_STATUS', payload);
+        async GET_EXAM_INFO({commit}, payload) {
+            try {
+                let params = prepareQueryParams(payload);
+                let response = await httpClient.get('/v1/exam/info' + params);
+                commit('SET_EXAM_INFO', response.data);
+                return Promise.resolve(response.data);
+            } catch (error) {
+                let message = resolveError(error);
+                return Promise.reject(message);
+            }
+        },
+
+        async GET_EXAM_QUESTIONS({commit}, payload) {
+            try {
+                if(!payload.examId){
+                    throw new Error("Exam ID required!");
+                }
+                let response = await httpClient.get('/v1/exam/questions?examId=' + payload.examId);
+                commit('SET_EXAM_QUESTIONS', response.data);
+                return Promise.resolve(response.data);
+            } catch (error) {
+                let message = resolveError(error);
+                return Promise.reject(message);
+            }
         },
     },
 }

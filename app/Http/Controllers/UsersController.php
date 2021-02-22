@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
 use App\Models\User;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
@@ -13,12 +12,17 @@ use stdClass;
 
 class UsersController extends Controller
 {
+    public function indexUsers()
+    {
+        return view('admin.users');
+    }
+
     public function index(Request $request)
     {
         try
         {
-            $builder = User::query();
-            $users = $builder->get()->map(function (User $user){
+            $builder = User::admins();
+            $users = $builder->get()->map(function (User $user) {
                 return $user->getInfo();
             });
             return response()->json($users);
@@ -33,7 +37,7 @@ class UsersController extends Controller
     {
         try
         {
-            $this->validate($request,[
+            $this->validate($request, [
                 'roleId' => 'required',
                 'firstName' => 'required',
                 'lastName' => 'required',
@@ -42,8 +46,9 @@ class UsersController extends Controller
             ]);
             $roleId = $request->get('roleId');
             $role = Sentinel::getRoleRepository()->find($roleId);
-            if(!$role){
-               throw new Exception('Role not found!');
+            if (!$role)
+            {
+                throw new Exception('Role not found!');
             }
             $user = Sentinel::registerAndActivate([
                 'first_name' => $request->get('firstName'),
@@ -55,12 +60,34 @@ class UsersController extends Controller
             ]);
             $role->users()->attach($user);
             return response()->json('User created!');
-        }catch (Exception $ex)
+        } catch (Exception $ex)
         {
             Log::error("CREATE_USER: {$ex->getMessage()}");
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
 
+    public function update(Request $request)
+    {
+        return response()->json('Ok');
+    }
+
+    public function show($id)
+    {
+        try
+        {
+            $user = User::admins()->find($id);
+            if (!$user)
+            {
+                return response()->json("User not found!", 404);
+            }
+            $userData = $user->getInfo();
+            return response()->json($userData);
+        } catch (Exception $ex)
+        {
+            Log::error("GET_USERS: {$ex->getMessage()}");
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
 
 }

@@ -1,7 +1,7 @@
 export default class Answer {
     constructor() {
         this.id = null;
-        this.title = '';
+        this.description = '';
         this.correct = false;
         this.active = true;
         this.questionId = null;

@@ -17,79 +17,182 @@ Route::get('/login', 'AccountController@login')->name('login');
 Route::post('/login', 'AccountController@processLogin')->name('login');
 
 Route::middleware('ensure.authenticated')->group(function () {
-    Route::get('user-data', 'AccountController@getUserData')->name('user-data');
-    Route::post('logout', 'AccountController@logout')->name('logout');
-    // Exam
-    Route::get('exam/{courseSlug}', 'HomeController@takeExam')->name('take-exam');
+    Route::get('', 'HomeController@index')->name('home');
+    Route::post('logout', 'AccountController@logout');
+    Route::get('user-data', 'AccountController@getUserData');
+    Route::get('zoom-token', 'ClassroomsController@getZoomToken');
+    Route::get('zoom-classroom', 'ClassroomsController@zoomClassroom')->name('zoom-classroom');
 
-    Route::group(['prefix' => 'v1'], function () {
-        // Course
-        Route::group(['prefix' => 'courses'], function () {
-            Route::get('', 'CoursesController@index')->name('courses');
-            Route::post('', 'CoursesController@store')->name('courses');
-            Route::put('', 'CoursesController@update')->name('courses');
+    Route::prefix('v1')->group(function () {
+        Route::get('form-selections-options', 'HomeController@formSelectionsOptions');
+        Route::get('my-courses', 'StudentsController@myCourses');
+        Route::get('my-programs', 'StudentsController@myPrograms');
+
+        // Logbooks
+        Route::prefix('logbooks')->group(function () {
+            Route::get('', 'LogbooksController@index');
+            Route::post('', 'LogbooksController@store');
+            Route::put('', 'LogbooksController@update');
+            Route::patch('approve', 'LogbooksController@approve');
+            Route::patch('decline', 'LogbooksController@decline');
         });
 
-        // Module
-        Route::group(['prefix' => 'modules'], function () {
-            Route::get('', 'ModulesController@index')->name('modules');
-            Route::post('', 'ModulesController@store')->name('modules');
-            Route::put('', 'ModulesController@update')->name('modules');
+        // Programs
+        Route::prefix('programs')->group(function () {
+            Route::get('', 'ProgramsController@index');
+            Route::get('{id}', 'ProgramsController@show');
+            Route::post('', 'ProgramsController@store');
+            Route::put('', 'ProgramsController@update');
         });
 
-        // Topic
-        Route::group(['prefix' => 'topics'], function () {
-            Route::get('', 'TopicsController@index')->name('topics');
-            Route::post('', 'TopicsController@store')->name('topics');
-            Route::put('', 'TopicsController@update')->name('topics');
+        // Intakes
+        Route::prefix('intakes')->group(function () {
+            Route::get('', 'IntakesController@index');
+            Route::post('', 'IntakesController@store');
+            Route::put('', 'IntakesController@update');
         });
 
-        // Question
-        Route::group(['prefix' => 'questions'], function () {
-            Route::get('', 'QuestionsController@index')->name('questions');
-            Route::post('', 'QuestionsController@store')->name('questions');
-            Route::put('', 'QuestionsController@update')->name('questions');
+        // Levels
+        Route::prefix('levels')->group(function () {
+            Route::get('', 'LevelsController@index');
+            Route::post('', 'LevelsController@store');
+            Route::put('', 'LevelsController@update');
+        });
+
+        // Courses
+        Route::prefix('courses')->group(function () {
+            Route::get('', 'CoursesController@index');
+            Route::get('{id}', 'CoursesController@show');
+            Route::post('', 'CoursesController@store');
+            Route::put('', 'CoursesController@update');
+            Route::patch('', 'CoursesController@updateCourseDescription');
+        });
+
+        // Modules
+        Route::prefix('modules')->group(function () {
+            Route::get('', 'ModulesController@index');
+            Route::get('{id}', 'ModulesController@show');
+            Route::post('', 'ModulesController@store');
+            Route::put('', 'ModulesController@update');
+        });
+
+        // Topics
+        Route::prefix('topics')->group(function () {
+            Route::get('', 'TopicsController@index');
+            Route::get('{id}', 'TopicsController@show');
+            Route::post('', 'TopicsController@store');
+            Route::put('', 'TopicsController@update');
+        });
+
+        // Classrooms
+        Route::prefix('classrooms')->group(function () {
+            Route::get('', 'ClassroomsController@index');
+            Route::get('{id}', 'ClassroomsController@show');
+            Route::post('', 'ClassroomsController@store');
+            Route::put('', 'ClassroomsController@update');
+        });
+
+        // Questions
+        Route::prefix('questions')->group(function () {
+            Route::get('', 'QuestionsController@index');
+            Route::post('', 'QuestionsController@store');
+            Route::put('', 'QuestionsController@update');
         });
 
 
-        // Answer
-        Route::group(['prefix' => 'answers'], function () {
-            Route::get('', 'AnswersController@index')->name('answers');
-            Route::post('', 'AnswersController@store')->name('answers');
-            Route::put('', 'AnswersController@update')->name('answers');
+        // Answers
+        Route::prefix('answers')->group(function () {
+            Route::get('', 'AnswersController@index');
+            Route::post('', 'AnswersController@store');
+            Route::put('', 'AnswersController@update');
+        });
+
+        // Students
+        Route::prefix('students')->group(function () {
+            Route::get('', 'StudentsController@index');
+            Route::post('', 'StudentsController@store');
+            Route::put('', 'StudentsController@update');
+            Route::get('next-id', 'StudentsController@nextId');
+            Route::get('{id}', 'StudentsController@show');
+        });
+
+        // Enrollments
+        Route::group(['prefix' => 'enrollments'], function () {
+            Route::get('', 'EnrollmentsController@index');
+            Route::post('', 'EnrollmentsController@store');
+        });
+
+        // Instructors
+        Route::group(['prefix' => 'instructors'], function () {
+            Route::get('', 'InstructorsController@index');
+            Route::post('', 'InstructorsController@store');
         });
 
         // Exams
-        Route::group(['prefix' => 'exams'], function () {
-            Route::get('', 'ExamsController@index')->name('exams');
-            Route::post('', 'ExamsController@store')->name('exams');
-            Route::put('', 'ExamsController@update')->name('exams');
+        Route::prefix('exams')->group(function () {
+            Route::get('', 'ExamsController@index');
+            Route::post('', 'ExamsController@store');
+            Route::put('', 'ExamsController@update');
         });
 
         // Exam
-        Route::group(['prefix' => 'exam'], function () {
-            Route::get('info', 'ExamsController@getExamInfo')->name('exam-info');
-            Route::post('', 'ExamsController@storeResponses')->name('exam-response');
+        Route::prefix('exam')->group(function () {
+            Route::get('info', 'ExamsController@getExamInfo');
+            Route::get('questions', 'ExamsController@getExamQuestions');
+            Route::post('responses', 'ExamsController@storeResponses');
         });
 
         // Users
-        Route::group(['prefix' => 'users'], function () {
-            Route::get('', 'UsersController@index')->name('users');
-            Route::post('', 'UsersController@store')->name('users');
-            Route::put('', 'UsersController@update')->name('users');
+        Route::prefix('users')->group(function () {
+            Route::get('', 'UsersController@index');
+            Route::get('{id}', 'UsersController@show');
+            Route::post('', 'UsersController@store');
+            Route::put('', 'UsersController@update');
         });
 
         // Roles
-        Route::group(['prefix' => 'roles'], function () {
-            Route::get('', 'RolesController@index')->name('roles');
-            Route::post('', 'RolesController@store')->name('roles');
-            Route::put('', 'RolesController@update')->name('roles');
-            Route::patch('', 'RolesController@updatePermissions')->name('roles');
+        Route::prefix('roles')->group(function () {
+            Route::get('', 'RolesController@index');
+            Route::post('', 'RolesController@store');
+            Route::put('', 'RolesController@update');
+            Route::patch('', 'RolesController@updatePermissions');
         });
-
     });
 
-    Route::get('{any?}', 'HomeController@index')->where('any', '.+');
+    Route::prefix('admin')->middleware(['ensure.admin'])->group(function () {
+        Route::get('courses', 'CoursesController@indexCourses');
+        Route::get('live-classes', 'ClassroomsController@indexClassrooms');
+        Route::get('students', 'StudentsController@indexStudents');
+        Route::get('instructors', 'InstructorsController@indexInstructors');
+        Route::get('users', 'UsersController@indexUsers');
+        Route::get('roles', 'RolesController@indexRoles');
+        Route::get('levels', 'LevelsController@indexLevels');
+        Route::get('intakes', 'IntakesController@indexIntakes');
+        Route::get('programs', 'ProgramsController@indexPrograms');
+        Route::get('exams', 'ExamsController@indexExams');
+        Route::get('enrollments', 'EnrollmentsController@indexEnrollments');
+        Route::get('logbooks', 'LogbooksController@indexLogbooks');
+        // Dashboard Page
+        Route::get('{name?}', 'HomeController@indexAdmin')
+             ->name('admin.dashboard')
+             ->where('name', '|dashboard');
+    });
+
+    Route::prefix('student')->middleware(['ensure.learner'])->group(function () {
+        // Home Page
+        //Route::get('/', 'HomeController@indexStudent')->name('student.dashboard');
+
+        // My Courses Page
+        Route::get('courses', 'HomeController@studentCourses')->name('student.courses');
+        // Profile Page
+        Route::get('profile', 'HomeController@studentProfile')->name('student.profile');
+        // Dashboard Page
+        Route::get('{name?}', 'HomeController@indexStudent')
+             ->name('student.dashboard')
+             ->where('name', '|dashboard');
+    });
+
+    //Route::get('{any?}', 'HomeController@index')->where('any', '.+');
 });
 
 

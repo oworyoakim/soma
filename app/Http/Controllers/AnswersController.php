@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\Answer;
 use App\Models\Question;
+use App\Traits\ValidatesHttpRequests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,26 +16,21 @@ use stdClass;
 
 class AnswersController extends Controller
 {
+    use ValidatesHttpRequests;
+
     public function index(Request $request)
     {
         try
         {
             $builder = Answer::query();
-            $questionId = $request->get('question_id');
+            $questionId = $request->get('questionId');
             if ($questionId)
             {
                 $builder->where('question_id', $questionId);
             }
 
-            $answers = $builder->get()->transform(function (Answer $item) {
-                $answer = new stdClass();
-                $answer->id = $item->id;
-                $answer->title = $item->title;
-                $answer->correct = !!$item->correct;
-                $answer->status = $item->active;
-                $answer->questionId = $item->question_id;
-                $answer->question = null;
-                return $answer;
+            $answers = $builder->get()->transform(function (Answer $answer) {
+                return $answer->getDetails();
             });
             return response()->json($answers);
         } catch (Exception $ex)
@@ -49,22 +45,15 @@ class AnswersController extends Controller
     {
         try
         {
-            $request->validate([
-                'title' => 'required',
+            $this->validateData($request->all(),[
+                'description' => 'required',
                 'questionId' => 'required',
             ]);
             $user = Sentinel::getUser();
 
             $questionId = $request->get('questionId');
-            /*
-            $question = Question::query()->find($questionId);
-            if (!$question)
-            {
-                throw new Exception("Question not found!");
-            }
-            */
             Answer::query()->create([
-                'title' => $request->get('title'),
+                'description' => $request->get('description'),
                 'question_id' => $questionId,
                 'correct' => $request->get('correct'),
                 'created_by' => $user->getUserId(),
@@ -87,23 +76,16 @@ class AnswersController extends Controller
             {
                 throw new Exception("Answer not found!");
             }
-            $title = $request->get('title');
+            $description = $request->get('description');
 
-            $request->validate([
-                'title' => 'required',
+            $this->validateData($request->all(),[
+                'description' => 'required',
                 'questionId' => 'required',
             ]);
 
             $questionId = $request->get('questionId');
-            /*
-            $question = Question::query()->find($questionId);
-            if (!$question)
-            {
-                throw new Exception("Question not found!");
-            }
-            */
 
-            $answer->title = $title;
+            $answer->description = $description;
             $answer->question_id = $questionId;
             $answer->correct = $request->get('correct');
             $answer->save();

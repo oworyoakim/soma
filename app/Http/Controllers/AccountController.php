@@ -15,7 +15,7 @@ class AccountController extends Controller
     {
         if (Sentinel::check())
         {
-            return redirect()->intended('/');
+            return redirect()->route('home');
         }
         return view('login');
     }
@@ -33,7 +33,8 @@ class AccountController extends Controller
             $loginName = $request->get('login_name');
             $password = $request->get('password');
 
-            if (!$loginName || !$password)
+
+            if (empty($loginName) || empty($password))
             {
                 throw new Exception('Invalid Credentials!');
             }
@@ -73,6 +74,16 @@ class AccountController extends Controller
             $user->isAdmin = Sentinel::inRole('admin');
             $user->isInstructor = Sentinel::inRole('instructor');
             $user->isStudent = Sentinel::inRole('student');
+            $user->tinymceApiKey = null;
+            if ($user->isAdmin || $user->isInstructor)
+            {
+                $user->tinymceApiKey = env("TINYMCE_API_KEY");
+            }
+            $user->permissions = $loggedInUser->getPermissions();
+            if ($role = $loggedInUser->roles()->first())
+            {
+                $user->permissions = array_merge($user->permissions, $role->getPermissions());
+            }
             return response()->json($user);
         } catch (Exception $ex)
         {
@@ -82,10 +93,11 @@ class AccountController extends Controller
     }
 
 
-    public function logout()
+    public function logout(Request $request)
     {
         $user = Sentinel::getUser();
-        Sentinel::logout($user);
+        Sentinel::logout($user, true);
+        $request->session()->forget('url.intended');
         return response()->json("Logged Out!");
     }
 }

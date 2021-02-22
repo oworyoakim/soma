@@ -5,9 +5,11 @@ export default class CourseModule {
         this.title = null;
         this.description = null;
         this.duration = null;
-        this.outline = null;
         this.createdBy = null;
         this.topics = [];
+        this.numTopics = 0;
         this.questions = [];
+        this.numQuestions = 0;
+        this.maxNumQuestions = 0;
     }
 }
