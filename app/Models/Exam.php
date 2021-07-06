@@ -12,10 +12,7 @@ use stdClass;
  * @property int id
  * @property int code
  * @property string title
- * @property int intake_id
  * @property int course_id
- * @property int level_id
- * @property int program_id
  * @property int duration
  * @property int num_questions
  * @property float pass_score
@@ -30,21 +27,6 @@ use stdClass;
 class Exam extends Model
 {
     protected $table = 'exams';
-
-    public function program()
-    {
-        return $this->belongsTo(Program::class, 'program_id');
-    }
-
-    public function intake()
-    {
-        return $this->belongsTo(Intake::class, 'intake_id');
-    }
-
-    public function level()
-    {
-        return $this->belongsTo(Level::class, 'level_id');
-    }
 
     public function course()
     {
@@ -72,10 +54,7 @@ class Exam extends Model
         $exam->id = $this->id;
         $exam->code = $this->code;
         $exam->title = $this->title;
-        $exam->intakeId = $this->intake_id;
         $exam->courseId = $this->course_id;
-        $exam->levelId = $this->level_id;
-        $exam->programId = $this->program_id;
         $exam->duration = $this->duration;
         $exam->numQuestions = $this->num_questions;
         $exam->numberOfQuestions = $this->num_questions;
@@ -83,30 +62,7 @@ class Exam extends Model
         $exam->instructions = $this->instructions;
         $exam->active = !!$this->active;
         // relationships
-        $exam->intake = null;
-        $exam->level = null;
-        $exam->program = null;
         $exam->course = null;
-        if ($this->intake)
-        {
-            $exam->intake = new stdClass();
-            $exam->intake->id = $exam->intakeId;
-            $exam->intake->title = $this->intake->title;
-        }
-
-        if ($this->level)
-        {
-            $exam->level = new stdClass();
-            $exam->level->id = $exam->levelId;
-            $exam->level->title = $this->level->title;
-        }
-
-        if ($this->program)
-        {
-            $exam->program = new stdClass();
-            $exam->program->id = $exam->programId;
-            $exam->program->title = $this->program->title;
-        }
 
         if ($this->course)
         {

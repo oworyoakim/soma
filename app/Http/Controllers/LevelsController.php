@@ -45,6 +45,7 @@ class LevelsController extends Controller
         {
             $this->validateData($request->all(), [
                 'title' => 'required|unique:levels',
+                'learningPathId' => 'required|exists:learning_paths,id',
             ]);
 
             $user = Sentinel::getUser();
@@ -53,6 +54,7 @@ class LevelsController extends Controller
             Level::query()->create([
                 'title' => $title,
                 'slug' => $slug,
+                'learningPathId' => $request->get('learningPathId'),
                 'created_by' => $user->getUserId(),
             ]);
             return response()->json("Level Created!");

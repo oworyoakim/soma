@@ -18,6 +18,7 @@ class CreateCoursesTable extends Migration
             $table->string('title');
             $table->string('code')->unique();
             $table->string('slug')->unique();
+            $table->unsignedInteger('level_id')->index('course_level_unique_3303');
             $table->longText('description')->nullable();
             $table->unsignedInteger('duration')->nullable();
             $table->unsignedTinyInteger('weight')->nullable();

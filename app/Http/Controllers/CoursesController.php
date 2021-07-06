@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use App\Models\Program;
-use App\Models\ProgramCourse;
 use App\Traits\ValidatesHttpRequests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Exception;
@@ -21,7 +19,34 @@ class CoursesController extends Controller
 
     public function indexCourses()
     {
-        return view('admin.courses');
+        return view('admin.courses.index');
+    }
+
+    public function showCourse($courseId)
+    {
+        $course = Course::find($courseId);
+        if(empty($course)){
+            return redirect()->to('/admin/courses')->with(['error' => 'Course not found!']);
+        }
+        return view('admin.courses.show', compact('course'));
+    }
+
+    public function courseModules($courseId)
+    {
+        $course = Course::find($courseId);
+        if(empty($course)){
+            return redirect()->to('/admin/courses')->with(['error' => 'Course not found!']);
+        }
+        return view('admin.courses.modules', compact('course'));
+    }
+
+    public function courseTopics($courseId)
+    {
+        $course = Course::find($courseId);
+        if(empty($course)){
+            return redirect()->to('/admin/courses')->with(['error' => 'Course not found!']);
+        }
+        return view('admin.courses.topics', compact('course'));
     }
 
     public function index(Request $request)
@@ -55,8 +80,6 @@ class CoursesController extends Controller
                 'title' => 'required|unique:courses',
                 'code' => 'required|unique:courses',
                 'levelId' => 'required',
-                'duration' => 'required',
-                'weight' => 'required',
             ];
 
             $this->validateData($request->all(), $rules);
@@ -73,8 +96,6 @@ class CoursesController extends Controller
                 'description' => $request->get('description'),
                 'created_by' => $user->getUserId(),
             ]);
-            $programIds = $request->get('programIds');
-            $course->programs()->sync($programIds);
             DB::commit();
             return response()->json("Course Created!");
         } catch (Exception $ex)
@@ -151,8 +172,6 @@ class CoursesController extends Controller
             }
             DB::beginTransaction();
             $course->save();
-            $programIds = $request->get('programIds');
-            $course->programs()->sync($programIds);
             DB::commit();
             return response()->json("Course Updated!");
         } catch (Exception $ex)

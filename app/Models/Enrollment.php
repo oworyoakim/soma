@@ -12,8 +12,8 @@ use stdClass;
  * @property int id
  * @property int user_id
  * @property int student_id
- * @property int intake_id
- * @property int program_id
+ * @property int course_id
+ * @property string|integer enroll_number
  * @property Carbon enroll_date
  * @property boolean active
  * @property Carbon created_at
@@ -36,14 +36,9 @@ class Enrollment extends Model
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    public function intake()
+    public function course()
     {
-        return $this->belongsTo(Intake::class, 'intake_id');
-    }
-
-    public function program()
-    {
-        return $this->belongsTo(Program::class, 'program_id');
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
     public function scopeActive(Builder $query)
@@ -62,25 +57,20 @@ class Enrollment extends Model
         $enrollment->id = $this->id;
         $enrollment->userId = $this->user_id;
         $enrollment->studentId = $this->student_id;
-        $enrollment->intakeId = $this->intake_id;
-        $enrollment->programId = $this->program_id;
+        $enrollment->courseId = $this->course_id;
+        $enrollment->enrollNumber = $this->enroll_number;
         $enrollment->enrollDate = $this->enroll_date->toDateString();
         $enrollment->active = !!$this->active;
-        $enrollment->intake = null;
-        $enrollment->program = null;
+        $enrollment->course = null;
         $enrollment->student = null;
         if ($this->student)
         {
             $enrollment->student = $this->student->getInfo(false);
         }
 
-        if ($this->intake)
+        if ($this->course)
         {
-            $enrollment->intake = $this->intake->getDetails();
-        }
-        if ($this->program)
-        {
-            $enrollment->program = $this->program->getDetails();
+            $enrollment->course = $this->course->getDetails();
         }
         return $enrollment;
     }

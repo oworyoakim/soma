@@ -75,14 +75,7 @@ class EnrollmentsController extends Controller
             {
                 throw new Exception("Student not found!");
             }
-            $oldEnrollments = Enrollment::query()
-                                        ->where([
-                                            'intake_id' => $intakeId,
-                                            'program_id' => $programId,
-                                            'student_id' => $studentId
-                                        ])
-                                        ->count();
-            if ($oldEnrollments > 0)
+            if ($student->hasEnrolledFor($programId, $intakeId))
             {
                 throw new Exception("Student already enrolled for the selected program in the selected intake!");
             }

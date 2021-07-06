@@ -1,4 +1,4 @@
-export default class Level {
+export class Program {
     constructor() {
         this.id = '';
         this.title = '';

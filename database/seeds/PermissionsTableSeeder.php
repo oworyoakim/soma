@@ -26,39 +26,6 @@ class PermissionsTableSeeder extends Seeder
             'description' => 'Dashboard',
         ]);
 
-        // programs management permissions
-        if ($perm = Permission::query()->create([
-            'name' => 'Manage Programs',
-            'slug' => 'programs',
-            'description' => 'Manage Programs',
-        ]))
-        {
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Create programs',
-                'slug' => 'programs.create',
-                'description' => 'Create programs',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Update programs',
-                'slug' => 'programs.update',
-                'description' => 'Update programs',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'View programs',
-                'slug' => 'programs.view',
-                'description' => 'View programs',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Delete programs',
-                'slug' => 'programs.delete',
-                'description' => 'Delete programs',
-            ]);
-        }
-
         // instructors management permissions
         if ($perm = Permission::query()->create([
             'name' => 'Manage Instructors',
@@ -155,39 +122,6 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'Delete levels',
                 'slug' => 'levels.delete',
                 'description' => 'Delete levels',
-            ]);
-        }
-
-        // intakes management permissions
-        if ($perm = Permission::query()->create([
-            'name' => 'Manage Intakes',
-            'slug' => 'intakes',
-            'description' => 'Manage Intakes',
-        ]))
-        {
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Create intakes',
-                'slug' => 'intakes.create',
-                'description' => 'Create intakes',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Update intakes',
-                'slug' => 'intakes.update',
-                'description' => 'Update intakes',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'View intakes',
-                'slug' => 'intakes.view',
-                'description' => 'View intakes',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Delete intakes',
-                'slug' => 'intakes.delete',
-                'description' => 'Delete intakes',
             ]);
         }
 
@@ -392,51 +326,6 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'Delete enrollments',
                 'slug' => 'enrollments.delete',
                 'description' => 'Delete enrollments',
-            ]);
-        }
-
-        // logbooks management permissions
-        if ($perm = Permission::query()->create([
-            'name' => 'Manage Logbooks',
-            'slug' => 'logbooks',
-            'description' => 'Manage Logbooks',
-        ]))
-        {
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Create logbooks',
-                'slug' => 'logbooks.create',
-                'description' => 'Create logbooks',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Update logbooks',
-                'slug' => 'logbooks.update',
-                'description' => 'Update logbooks',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'View logbooks',
-                'slug' => 'logbooks.view',
-                'description' => 'View logbooks',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Delete logbooks',
-                'slug' => 'logbooks.delete',
-                'description' => 'Delete logbooks',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Approve logbooks',
-                'slug' => 'logbooks.approve',
-                'description' => 'Approve logbooks',
-            ]);
-            Permission::query()->create([
-                'parent_id' => $perm->id,
-                'name' => 'Decline logbooks',
-                'slug' => 'logbooks.decline',
-                'description' => 'Decline logbooks',
             ]);
         }
 

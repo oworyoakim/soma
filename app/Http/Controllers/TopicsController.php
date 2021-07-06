@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Module;
 use App\Models\Question;
 use App\Models\Topic;
 use App\Traits\ValidatesHttpRequests;
@@ -21,11 +22,19 @@ class TopicsController extends Controller
         try
         {
             $builder = Topic::query();
-            if ($moduleId = $request->get('moduleId'))
+            $moduleIds = [];
+            if ($courseId = $request->get('courseId'))
             {
-                $builder->where('module_id', $moduleId);
+                $moduleIds = Module::query()
+                                   ->where('course_id', $courseId)
+                                   ->pluck('id')
+                                   ->all();
+            } elseif ($moduleId = $request->get('moduleId'))
+            {
+                $moduleIds = [$moduleId];
             }
-            $topics = $builder->get()
+            $topics = $builder->whereIn('module_id', $moduleIds)
+                              ->get()
                               ->map(function (Topic $topic) {
                                   return $topic->getDetails();
                               });
@@ -72,17 +81,21 @@ class TopicsController extends Controller
             {
                 throw new Exception("Topic not found!");
             }
-            if($title = $request->get('title')){
+            if ($title = $request->get('title'))
+            {
                 $topic->title = $title;
             }
-            if($description = $request->get('description')){
+            if ($description = $request->get('description'))
+            {
                 $topic->description = $description;
             }
-            if($body = $request->get('body')){
+            if ($body = $request->get('body'))
+            {
                 $topic->body = $body;
             }
-            if($moduleId = $request->get('moduleId')){
-                $topic->module_id  = $moduleId;
+            if ($moduleId = $request->get('moduleId'))
+            {
+                $topic->module_id = $moduleId;
             }
 
             $topic->save();
@@ -95,7 +108,8 @@ class TopicsController extends Controller
         }
     }
 
-    public function show($id){
+    public function show($id)
+    {
         try
         {
             $loggedInUser = Sentinel::getUser();

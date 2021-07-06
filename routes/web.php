@@ -13,44 +13,54 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', 'AccountController@login')->name('login');
-Route::post('/login', 'AccountController@processLogin')->name('login');
+Route::get('', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/about-us', [\App\Http\Controllers\HomeController::class, 'about'])->name('about');
+Route::get('/instructors', [\App\Http\Controllers\HomeController::class, 'instructors'])->name('instructors');
+Route::get('/login', [\App\Http\Controllers\HomeController::class, 'login'])->name('login');
+Route::get('/signup', [\App\Http\Controllers\HomeController::class, 'signup'])->name('signup');
+Route::post('/login', [\App\Http\Controllers\AccountController::class, 'processLogin']);
+Route::post('/instructor-login', [\App\Http\Controllers\AccountController::class, 'processInstructorLogin']);
+Route::post('/admin-login', [\App\Http\Controllers\AdminController::class, 'processAdminLogin']);
+Route::post('/signup', [\App\Http\Controllers\HomeController::class, 'processSignup']);
+Route::get('/forgot-password', [\App\Http\Controllers\HomeController::class, 'forgotPassword']);
+Route::get('/user-data', [\App\Http\Controllers\AccountController::class, 'getUserData']);
+Route::get('/learning-paths', [\App\Http\Controllers\HomeController::class, 'getLearningPaths']);
+
+Route::prefix('courses')->group(function (){
+    Route::get('', [\App\Http\Controllers\HomeController::class, 'courses'])->name('courses');
+    Route::get('primary', [\App\Http\Controllers\HomeController::class, 'primaryCourses'])->name('courses.primary');
+    Route::get('lower-secondary', [\App\Http\Controllers\HomeController::class, 'lowerSecondaryCourses'])->name('courses.lower-secondary');
+    Route::get('upper-secondary', [\App\Http\Controllers\HomeController::class, 'upperSecondaryCourses'])->name('courses.upper-secondary');
+});
+
+Route::prefix('admin')->middleware(['ensure.admin'])->group(function () {
+    Route::redirect('', 'admin/dashboard');
+    Route::get('dashboard', 'HomeController@indexAdmin')->name('admin.dashboard');
+    Route::get('courses', 'CoursesController@indexCourses');
+    Route::get('courses/{id}', 'CoursesController@showCourse');
+    Route::get('courses/{id}/modules', 'CoursesController@courseModules');
+    Route::get('courses/{id}/topics', 'CoursesController@courseTopics');
+    Route::get('live-classes', 'ClassroomsController@indexClassrooms');
+    Route::get('students', 'StudentsController@indexStudents');
+    Route::get('instructors', 'InstructorsController@indexInstructors');
+    Route::get('users', 'UsersController@indexUsers');
+    Route::get('roles', 'RolesController@indexRoles');
+    Route::get('levels', 'LevelsController@indexLevels');
+    Route::get('intakes', 'IntakesController@indexIntakes');
+    Route::get('programs', 'ProgramsController@indexPrograms');
+    Route::get('exams', 'ExamsController@indexExams');
+    Route::get('enrollments', 'EnrollmentsController@indexEnrollments');
+});
 
 Route::middleware('ensure.authenticated')->group(function () {
-    Route::get('', 'HomeController@index')->name('home');
     Route::post('logout', 'AccountController@logout');
-    Route::get('user-data', 'AccountController@getUserData');
     Route::get('zoom-token', 'ClassroomsController@getZoomToken');
     Route::get('zoom-classroom', 'ClassroomsController@zoomClassroom')->name('zoom-classroom');
 
     Route::prefix('v1')->group(function () {
         Route::get('form-selections-options', 'HomeController@formSelectionsOptions');
         Route::get('my-courses', 'StudentsController@myCourses');
-        Route::get('my-programs', 'StudentsController@myPrograms');
-
-        // Logbooks
-        Route::prefix('logbooks')->group(function () {
-            Route::get('', 'LogbooksController@index');
-            Route::post('', 'LogbooksController@store');
-            Route::put('', 'LogbooksController@update');
-            Route::patch('approve', 'LogbooksController@approve');
-            Route::patch('decline', 'LogbooksController@decline');
-        });
-
-        // Programs
-        Route::prefix('programs')->group(function () {
-            Route::get('', 'ProgramsController@index');
-            Route::get('{id}', 'ProgramsController@show');
-            Route::post('', 'ProgramsController@store');
-            Route::put('', 'ProgramsController@update');
-        });
-
-        // Intakes
-        Route::prefix('intakes')->group(function () {
-            Route::get('', 'IntakesController@index');
-            Route::post('', 'IntakesController@store');
-            Route::put('', 'IntakesController@update');
-        });
+        Route::get('dashboard-statistics', 'AdminController@dashboardStatistics');
 
         // Levels
         Route::prefix('levels')->group(function () {
@@ -157,25 +167,6 @@ Route::middleware('ensure.authenticated')->group(function () {
             Route::put('', 'RolesController@update');
             Route::patch('', 'RolesController@updatePermissions');
         });
-    });
-
-    Route::prefix('admin')->middleware(['ensure.admin'])->group(function () {
-        Route::get('courses', 'CoursesController@indexCourses');
-        Route::get('live-classes', 'ClassroomsController@indexClassrooms');
-        Route::get('students', 'StudentsController@indexStudents');
-        Route::get('instructors', 'InstructorsController@indexInstructors');
-        Route::get('users', 'UsersController@indexUsers');
-        Route::get('roles', 'RolesController@indexRoles');
-        Route::get('levels', 'LevelsController@indexLevels');
-        Route::get('intakes', 'IntakesController@indexIntakes');
-        Route::get('programs', 'ProgramsController@indexPrograms');
-        Route::get('exams', 'ExamsController@indexExams');
-        Route::get('enrollments', 'EnrollmentsController@indexEnrollments');
-        Route::get('logbooks', 'LogbooksController@indexLogbooks');
-        // Dashboard Page
-        Route::get('{name?}', 'HomeController@indexAdmin')
-             ->name('admin.dashboard')
-             ->where('name', '|dashboard');
     });
 
     Route::prefix('student')->middleware(['ensure.learner'])->group(function () {

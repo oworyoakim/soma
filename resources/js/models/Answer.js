@@ -1,4 +1,4 @@
-export default class Answer {
+export class Answer {
     constructor() {
         this.id = null;
         this.description = '';

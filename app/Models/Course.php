@@ -21,14 +21,14 @@ class Course extends Model
 {
     protected $table = 'courses';
 
-    public function programs()
-    {
-        return $this->belongsToMany(Program::class, 'program_courses', 'course_id', 'program_id')->withTimestamps();
-    }
-
     public function modules()
     {
         return $this->hasMany(Module::class, 'course_id');
+    }
+
+    public function instructors()
+    {
+        return $this->belongsToMany(Instructor::class, 'course_instructors', 'course_id', 'instructor_id');
     }
 
     public function level()
@@ -59,9 +59,9 @@ class Course extends Model
         $course->slug = $this->slug;
         $course->title = $this->title;
         $course->description = $this->description;
+        $course->thumbnail = $this->thumbnail;
         $course->duration = $this->duration;
         $course->weight = $this->weight;
-        $course->thumbnail = $this->thumbnail;
         $course->levelId = $this->level_id;
         $course->level = !empty($this->level) ? $this->level->getDetails() : null;
 
@@ -69,27 +69,39 @@ class Course extends Model
 
         if ($withRelations)
         {
-            $course->programs = $this->programs()
-                                     ->get()
-                                     ->map(function (Program $program) {
-                                         return $program->getDetails();
-                                     });
-            $course->programIds = $course->programs->pluck('id')->all();
-
             $course->modules = $this->modules()
                                     ->get()
                                     ->map(function (Module $module) {
                                         return $module->getDetails();
                                     });
-            $course->numModules = $course->modules->count();
+            $course->numberOfModules = $course->modules->count();
         } else
         {
-            $course->programIds = $this->programs()->get()->pluck('id')->all();
-            $course->programs = [];
             $course->modules = [];
-            $course->numModules = $this->modules()->count();
+            $course->numberOfModules = $this->modules()->count();
         }
 
+        return $course;
+    }
+
+    public function getInfoForHomePage(){
+
+        $course = new stdClass();
+        $course->id = $this->id;
+        $course->code = $this->code;
+        $course->slug = $this->slug;
+        $course->title = $this->title;
+        $course->description = $this->description;
+        $course->thumbnail = $this->thumbnail;
+        $course->level = !empty($this->level) ? $this->level->getDetails() : null;
+        // fetch statistics about this learning path
+        $modules = $this->modules()->get();
+        $course->numberOfModules = $modules->count();
+        // number of topics
+        $course->numberOfTopics = $modules->reduce(function ($count, Module $module) {
+            return $count + $module->topics()->count();
+        }, 0);
+        $course->numberOfEnrollments = $this->enrollments()->count();
         return $course;
     }
 }

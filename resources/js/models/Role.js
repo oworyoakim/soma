@@ -1,4 +1,4 @@
-export default class Role {
+export class Role {
     constructor() {
         this.id = null;
         this.name = '';

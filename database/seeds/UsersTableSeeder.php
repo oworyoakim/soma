@@ -20,6 +20,16 @@ class UsersTableSeeder extends Seeder
                 'email' => 'admin@soma.kim',
                 'password' => 'admin',
                 'avatar' => '/images/avatar.png',
+                'permissions' => [
+                    'dashboard' => true,
+                    'settings' => true,
+                    'users' => true,
+                    'users.view' => true,
+                    'users.create' => true,
+                    'users.update' => true,
+                    'users.delete' => true,
+                    'users.roles' => true,
+                ],
             ];
             $user = Sentinel::registerAndActivate($credentials);
             $user->roles()->attach($role);

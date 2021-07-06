@@ -1,4 +1,4 @@
-export default class Exam {
+export class Exam {
     constructor() {
         this.id = null;
         this.code = '';

@@ -1,21 +1,21 @@
 export class Classroom {
-    constructor() {
-        this.id = null;
-        this.title = '';
-        this.description = '';
-        this.type = 'meeting';
-        this.startTime = '';
-        this.duration = '';
-        this.status = '';
-        this.meetingId = '';
-        this.meetingPassword = '';
-        this.courseId = '';
-        this.moduleId = '';
-        this.topicId = '';
-        this.instructorId = '';
-        this.course = null;
-        this.module = null;
-        this.topic = null;
-        this.remarks = '';
+    constructor(classroom = {}) {
+        this.id = classroom.id || null;
+        this.title = classroom.title || '';
+        this.description = classroom.description || '';
+        this.type = classroom.type || 'meeting';
+        this.startTime = classroom.startTime || '';
+        this.duration = classroom.duration || '';
+        this.status = classroom.status || '';
+        this.meetingId = classroom.meetingId || '';
+        this.meetingPassword = classroom.meetingPassword || '';
+        this.courseId = classroom.courseId || '';
+        this.moduleId = classroom.moduleId || '';
+        this.topicId = classroom.topicId || '';
+        this.instructorId = classroom.instructorId || '';
+        this.course = classroom.course || null;
+        this.module = classroom.module || null;
+        this.topic = classroom.topic || null;
+        this.remarks = classroom.remarks || '';
     }
 }

@@ -16,11 +16,11 @@ class CreateExamsTable extends Migration
         Schema::create('exams', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('code')->unique();
-            $table->unsignedBigInteger('intake_id');
             $table->unsignedBigInteger('course_id');
             $table->unsignedTinyInteger('duration')->comment('Duration of the exam in minutes');
             $table->unsignedTinyInteger('num_questions')->comment('The number of questions to be answered');
             $table->float('pass_score', 5, 2)->unsigned()->comment('Pass score in percentage');
+            $table->tinyInteger('maximum_attempts')->nullable();
             $table->text('instructions')->nullable();
             $table->boolean('active')->default(false);
             $table->timestamps();

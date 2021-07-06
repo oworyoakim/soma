@@ -283,6 +283,7 @@ class ClassroomsController extends Controller
             "host_video",
             "participant_video",
             "join_before_host",
+            "waiting_room",
             "mute_upon_entry",
             "watermark",
             "use_pmi",

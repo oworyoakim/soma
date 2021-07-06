@@ -57,22 +57,22 @@ class Module extends Model
                                        return $topic->getDetails();
                                    });
 
-            $module->numTopics = $module->topics->count();
+            $module->numberOfTopics = $module->topics->count();
 
             $module->questions = $this->questions()
                                       ->get()
                                       ->map(function (Question $question) {
                                           return $question->getDetails();
                                       });
-            $module->numQuestions = $module->questions->count();
+            $module->numberOfQuestions = $module->questions->count();
         } else
         {
-            $module->numTopics = $this->topics()->count();
-            $module->numQuestions = $this->questions()->count();
+            $module->numberOfTopics = $this->topics()->count();
+            $module->numberOfQuestions = $this->questions()->count();
             $module->topics = [];
             $module->questions = [];
         }
-        $module->maxNumQuestions = $module->numQuestions;
+        $module->maxNumberOfQuestions = $module->numQuestions;
         return $module;
     }
 }

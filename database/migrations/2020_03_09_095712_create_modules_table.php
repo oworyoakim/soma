@@ -18,6 +18,7 @@ class CreateModulesTable extends Migration
             $table->unsignedBigInteger('course_id');
             $table->text('title');
             $table->longText('description')->nullable();
+            $table->unsignedTinyInteger('weight')->nullable();
             $table->unsignedInteger('duration')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();

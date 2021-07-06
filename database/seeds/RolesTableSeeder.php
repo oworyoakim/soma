@@ -17,15 +17,5 @@ class RolesTableSeeder extends Seeder
             'slug' => 'admin',
             'permissions' => [],
         ]);
-        Role::query()->create([
-            'name' => 'Instructor',
-            'slug' => 'instructor',
-            'permissions' => [],
-        ]);
-        Role::query()->create([
-            'name' => 'Student',
-            'slug' => 'student',
-            'permissions' => [],
-        ]);
     }
 }

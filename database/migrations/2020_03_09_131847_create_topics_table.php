@@ -18,6 +18,7 @@ class CreateTopicsTable extends Migration
             $table->unsignedBigInteger('module_id');
             $table->string('title');
             $table->longText('description')->nullable();
+            $table->longText('body')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
             $table->softDeletes();

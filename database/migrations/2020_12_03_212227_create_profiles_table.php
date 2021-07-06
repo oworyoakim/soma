@@ -16,12 +16,10 @@ class CreateProfilesTable extends Migration
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->index();
-            $table->enum('mode', ['boarding', 'private'])->index();
+            $table->date('dob')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
-            $table->string('house')->nullable();
-            $table->string('room')->nullable();
             $table->string('father_name')->nullable();
             $table->string('father_phone')->nullable();
             $table->string('father_address')->nullable();

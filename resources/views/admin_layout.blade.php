@@ -7,9 +7,9 @@
     <meta name="csrf-token" content="{{csrf_token()}}">
     <meta name="base-url" content="{{url('/')}}">
     <title>SOMA | @yield('title')</title>
-    <link rel="stylesheet" href="{{mix('css/app.css')}}">
+    <link rel="stylesheet" href="{{mix('css/admin.css')}}">
 </head>
-<body class="hold-transition sidebar-mini sidebar-collapse">
+<body class="hold-transition sidebar-mini">
 <div class="wrapper" id="main-app">
     <div v-if="!!$store.getters.PRE_LOADER" class="text-center" style="margin: 100px;">
         <app-spinner size="fa-2x"></app-spinner>
@@ -35,6 +35,6 @@
 </div>
 <!-- ./wrapper -->
 <!-- REQUIRED SCRIPTS -->
-<script src="{{mix('js/app.js')}}" async></script>
+<script src="{{mix('js/admin.js')}}" async></script>
 </body>
 </html>

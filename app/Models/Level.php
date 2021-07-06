@@ -13,6 +13,7 @@ use stdClass;
  * @property int id
  * @property string title
  * @property string slug
+ * @property int learningPathId
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -21,9 +22,16 @@ use stdClass;
 class Level extends Model
 {
 
-    public function courses(){
+    public function learningPath()
+    {
+        return $this->belongsTo(LearningPath::class, 'learningPathId');
+    }
+
+    public function courses()
+    {
         return $this->hasMany(Course::class, 'level_id');
     }
+
     /**
      * @return stdClass
      */
@@ -33,7 +41,13 @@ class Level extends Model
         $level->id = $this->id;
         $level->title = $this->title;
         $level->slug = $this->slug;
-        $level->numCourses = $this->courses()->count();
+        $level->learningPathId = $this->learningPathId;
+        $level->numberOfCourses = $this->courses()->count();
+        $level->learningPath = null;
+        if ($this->learningPath)
+        {
+            $level->learningPath = $this->learningPath->getDetails();
+        }
         return $level;
     }
 }

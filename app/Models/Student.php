@@ -24,11 +24,6 @@ class Student extends User
         return $this->hasMany(Enrollment::class, 'student_id');
     }
 
-    public function logbooks()
-    {
-        return $this->hasMany(Logbook::class, 'student_id');
-    }
-
     public function getInfo($withRelations = true)
     {
         $student = parent::getInfo($withRelations);
@@ -36,7 +31,7 @@ class Student extends User
         unset($student->role);
         $enrollments = $this->enrollments()->get();
         $student->numberOfEnrollments = $enrollments->count();
-        $student->programsEnrolled = $enrollments->pluck('program_id')->all();
+        $student->coursesEnrolled = $enrollments->pluck('course_id')->all();
         $student->numberOfExams = 0;
         return $student;
     }
@@ -46,22 +41,10 @@ class Student extends User
      *
      * @return bool
      */
-    public function isEligibleFor($programId)
+    public function isEligibleFor($courseId)
     {
-        // Todo: Check if the student has already taken and passed the prerequisites of this program
+        // Todo: Check if the student has already taken and passed the prerequisites of this course
         return true;
-    }
-
-    public function myPrograms()
-    {
-        $programIds = $this->enrollments()->pluck('program_id')->all();
-        $programs = Program::query()
-                         ->whereIn('id', $programIds)
-                         ->get()
-                         ->map(function (Program $program) {
-                             return $program->getDetails();
-                         });
-        return $programs;
     }
 
     public function myCourses()
@@ -71,10 +54,7 @@ class Student extends User
         {
             throw new Exception('No active enrollments!');
         }
-        $courseIds = ProgramCourse::query()
-                                  ->where('program_id', $enrollment->program_id)
-                                  ->pluck('course_id')
-                                  ->all();
+        $courseIds = $this->enrollments()->pluck('course_id')->all();
         $courses = Course::query()
                          ->whereIn('id', $courseIds)
                          ->get()
@@ -82,6 +62,17 @@ class Student extends User
                              return $course->getDetails();
                          });
         return $courses;
+    }
+
+    /**
+     * @param $courseId
+     *
+     * @return bool
+     */
+    public function hasEnrolledFor($courseId) : bool
+    {
+        $numEnrollments = $this->enrollments()->where(['course_id' => $courseId])->count();
+        return $numEnrollments > 0;
     }
 
 }

@@ -1,12 +1,13 @@
-export default class Topic {
-    constructor() {
-        this.id = null;
-        this.title = '';
-        this.description = '';
-        this.body = '';
-        this.active = null;
-        this.moduleId = null;
-        this.module = null;
-        this.classroom = null;
+export class Topic {
+    constructor(topic = {}) {
+        this.id = topic.id || null;
+        this.title = topic.title || '';
+        this.description = topic.description || '';
+        this.body = topic.body || '';
+        this.active = topic.active || null;
+        this.courseId = topic.courseId || '';
+        this.moduleId = topic.moduleId || '';
+        this.module = topic.module || null;
+        this.classroom = topic.classroom || null;
     }
 }

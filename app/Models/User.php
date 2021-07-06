@@ -8,6 +8,10 @@ use stdClass;
 
 class User extends EloquentUser
 {
+    const ACCOUNT_TYPE_ADMINS = 'admins';
+    const ACCOUNT_TYPE_INSTRUCTORS = 'instructors';
+    const ACCOUNT_TYPE_LEARNERS = 'learners';
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -26,14 +30,19 @@ class User extends EloquentUser
         return "{$this->first_name} {$this->last_name}";
     }
 
-    public function scopeDirectors(Builder $query)
+    public function scopeLearners(Builder $query)
     {
-        return $query->where('group', 'directors');
+        return $query->where('group', self::ACCOUNT_TYPE_LEARNERS);
+    }
+
+    public function scopeInstructors(Builder $query)
+    {
+        return $query->where('group', self::ACCOUNT_TYPE_INSTRUCTORS);
     }
 
     public function scopeAdmins(Builder $query)
     {
-        return $query->whereIn('group', ['admins', 'directors']);
+        return $query->where('group', self::ACCOUNT_TYPE_ADMINS);
     }
 
     public function getInfo($withRelations = true)

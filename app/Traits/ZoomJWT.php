@@ -11,12 +11,12 @@ trait ZoomJWT
 {
     private function getAppTimeZone()
     {
-        return env('APP_TIME_ZONE', 'UTC');
+        return config("app.timezone");
     }
 
     private function getZoomUrl()
     {
-        return env('ZOOM_API_URL', "https://api.zoom.us/v2/");
+        return config("services.zoom.api_url");
     }
 
     /**
@@ -26,8 +26,8 @@ trait ZoomJWT
      */
     private function generateZoomToken($minutes = 1)
     {
-        $key = env('ZOOM_API_KEY', '');
-        $secret = env('ZOOM_API_SECRET', '');
+        $key = config("services.zoom.key");
+        $secret = config("services.zoom.secret");
         $payload = [
             'iss' => $key,
             'exp' => Carbon::now()->addMinutes($minutes)->getTimestamp(),

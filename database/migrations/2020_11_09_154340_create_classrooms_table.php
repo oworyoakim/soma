@@ -22,6 +22,8 @@ class CreateClassroomsTable extends Migration
             $table->string('meeting_uuid')->nullable();
             $table->text('join_url')->nullable();
             $table->text('start_url')->nullable();
+            $table->unsignedBigInteger('course_id')->nullable();
+            $table->unsignedBigInteger('module_id')->nullable();
             $table->unsignedBigInteger('topic_id');
             $table->unsignedBigInteger('instructor_id');
             $table->unsignedInteger('duration');

@@ -53,11 +53,11 @@ class Topic extends Model
                                      ->map(function (Question $question) {
                                          return $question->getDetails();
                                      });
-            $topic->numQuestions = $topic->questions->count();
+            $topic->numberOfQuestions = $topic->questions->count();
         } else
         {
             $topic->questions = [];
-            $topic->numQuestions = $this->questions()->count();
+            $topic->numberOfQuestions = $this->questions()->count();
         }
 
 

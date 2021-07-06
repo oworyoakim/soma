@@ -19,12 +19,15 @@ class EnsureAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Sentinel::inRole('student'))
-        {
+        if(Sentinel::check() && !Sentinel::inRole('student')){
             return $next($request);
+        }
+        if ($request->expectsJson())
+        {
+            return response()->json('Session Expired!',Response::HTTP_UNAUTHORIZED);
         }
         $user = Sentinel::getUser();
         Sentinel::logout($user, true);
-        return redirect()->route('login')->with('error', "Unauthorized Access!");
+        return response()->view("admin.login", ['error' => "Unauthorized Access!"]);
     }
 }

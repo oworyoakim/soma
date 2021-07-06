@@ -14,9 +14,6 @@ class SettingsTableSeeder extends Seeder
     {
        Setting::set('company_name', 'SOMA');
        Setting::set('company_email', 'admin@soma.kim');
-       Setting::set('zoom_api_key', '');
-       Setting::set('zoom_api_secret', '');
-       Setting::set('zoom_jwt_token', '');
        Setting::set('maximum_classroom_duration', 30);
     }
 }
